@@ -1,6 +1,8 @@
 import pygame
 import math
 
+from datetime import datetime, timedelta
+
 def main():
     pygame.init()
 
@@ -11,6 +13,7 @@ def main():
     clock = pygame.time.Clock()
     min_score = 100
 
+    start_time = None
     min_distance = float('inf')
     max_distance = 0
 
@@ -20,12 +23,24 @@ def main():
             screen, "White",
             (400, 390,
              20, 20))
+
+
+        if start_time != None and datetime.now() - start_time > timedelta(seconds=5):
+            f1 = pygame.font.Font(None, 36)
+            text1 = f1.render('Слишком долго', True,
+                              (180, 0, 0))
+            screen.blit(text1, (10, 50))
+            start_time = None
+            continue
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
             elif event.type == pygame.MOUSEMOTION:
                 if event.buttons[0]:  # Left mouse button down.
+                    if start_time == None:
+                        start_time = datetime.now()
                     if pos[0] > 350 and pos[0] < 470 and pos[1] > 350 and pos[1] < 470:
                         f1 = pygame.font.Font(None, 36)
                         text1 = f1.render('Слишком близко к точке', True,
@@ -45,17 +60,15 @@ def main():
                         if min_score <= 40:
                             pygame.draw.line(screen, "RED", last, event.pos, 1)
 
-
-
-
             elif event.type == pygame.MOUSEBUTTONUP:
+                screen.fill("BLACK")
                 f2 = pygame.font.Font(None, 36)
                 if (round((min_distance / max_distance)*100) + 15) <= 100:
                     text2 = f2.render((str(round((min_distance / max_distance)*100) + 15)) + "%", True,
                                       (180, 0, 0))
                     screen.blit(text2, (400, 700))
                 else:
-                    text2 = f2.render((str(round((min_distance / max_distance) * 100) + 15)) + "%", True,
+                    text2 = f2.render((str(round((min_distance / max_distance) * 100))) + "%", True,
                                       (180, 0, 0))
                     screen.blit(text2, (400, 700))
         pygame.display.update()
